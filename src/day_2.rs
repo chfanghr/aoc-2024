@@ -92,23 +92,14 @@ mod solution {
 #[cfg(test)]
 mod example {
     pub fn input() -> &'static str {
-        "7 6 4 2 1\n\
-         1 2 7 8 9\n\
-         9 7 6 2 1\n\
-         1 3 2 4 5\n\
-         8 6 4 4 1\n\
-         1 3 6 7 9"
+        include_str!("./examples/day2/example.txt")
     }
 
     pub fn intermediate() -> Vec<Vec<i64>> {
-        vec![
-            vec![7, 6, 4, 2, 1],
-            vec![1, 2, 7, 8, 9],
-            vec![9, 7, 6, 2, 1],
-            vec![1, 3, 2, 4, 5],
-            vec![8, 6, 4, 4, 1],
-            vec![1, 3, 6, 7, 9],
-        ]
+        include!("./examples/day2/intermediate.in")
+            .into_iter()
+            .map(Vec::from)
+            .collect()
     }
 
     pub fn output_number_of_safe_reports_p_1() -> usize {

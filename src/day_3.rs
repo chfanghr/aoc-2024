@@ -137,54 +137,11 @@ mod solution {
 mod example {
     use super::Instruction;
     pub fn input_p_1() -> &'static str {
-        "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
+        include_str!("./examples/day3/example.1.txt")
     }
 
     pub fn intermediate_p_1() -> Vec<Instruction> {
-        vec![
-            Instruction::Nop,
-            Instruction::Mul(2, 4),
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Mul(5, 5),
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Mul(11, 8),
-            Instruction::Mul(8, 5),
-            Instruction::Nop,
-        ]
+        include!("./examples/day3/intermediate.1.in").into()
     }
 
     pub fn output_p_1() -> i64 {
@@ -192,47 +149,11 @@ mod example {
     }
 
     pub fn input_p_2() -> &'static str {
-        "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
+        include_str!("./examples/day3/example.2.txt")
     }
 
     pub fn intermediate_p_2() -> Vec<Instruction> {
-        vec![
-            Instruction::Nop,
-            Instruction::Mul(2, 4),
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Dont,
-            Instruction::Nop,
-            Instruction::Mul(5, 5),
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Mul(11, 8),
-            Instruction::Nop,
-            Instruction::Nop,
-            Instruction::Do,
-            Instruction::Nop,
-            Instruction::Mul(8, 5),
-            Instruction::Nop,
-        ]
+        include!("./examples/day3/intermediate.2.in").into()
     }
 
     pub fn output_p_2() -> i64 {

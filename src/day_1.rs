@@ -88,16 +88,11 @@ mod solution {
 #[cfg(test)]
 mod example {
     pub fn input() -> &'static str {
-        "3   4\n\
-         4   3\n\
-         2   5\n\
-         1   3\n\
-         3   9\n\
-         3   3"
+        include_str!("./examples/day1/example.txt")
     }
 
     pub fn intermediate() -> (Vec<i64>, Vec<i64>) {
-        (vec![3, 4, 2, 1, 3, 3], vec![4, 3, 5, 3, 9, 3])
+        include!("./examples/day1/intermediate.in")
     }
 
     pub fn output_total_distance() -> i64 {
