@@ -4,33 +4,50 @@ use nom::Parser;
 #[derive(Debug)]
 pub struct Answer {
     pub part_1: i64,
+    pub part_2: i64,
 }
 
 pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
-    let multiplications = parser::input()
+    let instructions = parser::input()
         .parse(input)
         .map_err(|err| anyhow!("failed to parse input: {}", err))?
         .1;
     Ok(Answer {
-        part_1: solution::sum_of_results_of_the_multiplications(&multiplications),
+        part_1: solution::sum_of_results_of_the_multiplications_ignoring_do_dont(&instructions),
+        part_2: solution::sum_of_results_of_the_multiplications(&instructions),
     })
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum Instruction {
+    Mul(i64, i64),
+    Dont,
+    Do,
+    Nop,
 }
 
 mod parser {
     pub type Error<'a> = nom::error::Error<&'a str>;
     pub trait Parser<'a, T> = nom::Parser<&'a str, T, Error<'a>>;
 
-    pub fn input<'a>() -> impl Parser<'a, Vec<(i64, i64)>> {
+    pub fn input<'a>() -> impl Parser<'a, Vec<super::Instruction>> {
         nom::multi::many1(nom::branch::alt((
-            mul().map(Some),
-            nom::character::complete::anychar.map(|_| None),
+            mul(),
+            do_(),
+            dont(),
+            nom::character::complete::anychar.map(|_| super::Instruction::Nop),
         )))
-        .map(|v: Vec<Option<(i64, i64)>>| {
-            v.into_iter().filter_map(|x| x).collect::<Vec<(i64, i64)>>()
-        })
     }
 
-    fn mul<'a>() -> impl Parser<'a, (i64, i64)> {
+    fn do_<'a>() -> impl Parser<'a, super::Instruction> {
+        nom::bytes::complete::tag("do()").map(|_| super::Instruction::Do)
+    }
+
+    fn dont<'a>() -> impl Parser<'a, super::Instruction> {
+        nom::bytes::complete::tag("don't()").map(|_| super::Instruction::Dont)
+    }
+
+    fn mul<'a>() -> impl Parser<'a, super::Instruction> {
         nom::sequence::preceded(
             nom::bytes::complete::tag("mul"),
             nom::sequence::delimited(
@@ -43,42 +60,178 @@ mod parser {
                 nom::character::complete::char(')'),
             ),
         )
+        .map(|(l, r)| super::Instruction::Mul(l, r))
     }
 
     #[test]
     fn example() {
         assert_eq!(
-            input().parse(super::example::input()),
-            Ok(("", super::example::intermediate()))
-        )
+            input().parse(super::example::input_p_1()),
+            Ok(("", super::example::intermediate_p_1()))
+        );
+        assert_eq!(
+            input().parse(super::example::input_p_2()),
+            Ok(("", super::example::intermediate_p_2()))
+        );
     }
 }
 
 mod solution {
-    pub fn sum_of_results_of_the_multiplications(multiplications: &[(i64, i64)]) -> i64 {
-        multiplications.iter().map(|(l, r)| l * r).sum()
+    use super::Instruction;
+
+    pub fn sum_of_results_of_the_multiplications_ignoring_do_dont(
+        instructions: &[Instruction],
+    ) -> i64 {
+        instructions
+            .iter()
+            .map(|instruction| match instruction {
+                Instruction::Mul(l, r) => l * r,
+                _ => 0,
+            })
+            .sum()
+    }
+
+    pub fn sum_of_results_of_the_multiplications(instructions: &[Instruction]) -> i64 {
+        instructions
+            .iter()
+            .scan(true, |mul_enabled: &mut bool, instruction| {
+                match instruction {
+                    Instruction::Mul(l, r) => {
+                        if *mul_enabled {
+                            return Some(l * r);
+                        }
+                    }
+                    Instruction::Do => {
+                        *mul_enabled = true;
+                    }
+                    Instruction::Dont => {
+                        *mul_enabled = false;
+                    }
+                    _ => (),
+                };
+                return Some(0);
+            })
+            .sum()
     }
 
     #[test]
     fn example() {
         assert_eq!(
-            sum_of_results_of_the_multiplications(&super::example::intermediate()),
-            super::example::output()
-        )
+            sum_of_results_of_the_multiplications_ignoring_do_dont(
+                &super::example::intermediate_p_1()
+            ),
+            super::example::output_p_1()
+        );
+        assert_eq!(
+            sum_of_results_of_the_multiplications(&super::example::intermediate_p_2()),
+            super::example::output_p_2()
+        );
     }
 }
 
 #[cfg(test)]
 mod example {
-    pub fn input() -> &'static str {
+    use super::Instruction;
+    pub fn input_p_1() -> &'static str {
         "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
     }
 
-    pub fn intermediate() -> Vec<(i64, i64)> {
-        vec![(2, 4), (5, 5), (11, 8), (8, 5)]
+    pub fn intermediate_p_1() -> Vec<Instruction> {
+        vec![
+            Instruction::Nop,
+            Instruction::Mul(2, 4),
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Mul(5, 5),
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Mul(11, 8),
+            Instruction::Mul(8, 5),
+            Instruction::Nop,
+        ]
     }
 
-    pub fn output() -> i64 {
+    pub fn output_p_1() -> i64 {
         161
+    }
+
+    pub fn input_p_2() -> &'static str {
+        "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
+    }
+
+    pub fn intermediate_p_2() -> Vec<Instruction> {
+        vec![
+            Instruction::Nop,
+            Instruction::Mul(2, 4),
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Dont,
+            Instruction::Nop,
+            Instruction::Mul(5, 5),
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Mul(11, 8),
+            Instruction::Nop,
+            Instruction::Nop,
+            Instruction::Do,
+            Instruction::Nop,
+            Instruction::Mul(8, 5),
+            Instruction::Nop,
+        ]
+    }
+
+    pub fn output_p_2() -> i64 {
+        48
     }
 }

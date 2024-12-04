@@ -73,11 +73,11 @@ mod solution {
     fn example() {
         assert_eq!(
             number_of_safe_reports_p1(&super::example::intermediate()),
-            super::example::output_number_of_safe_reports_p1()
+            super::example::output_number_of_safe_reports_p_1()
         );
         assert_eq!(
             number_of_safe_reports_p2(&super::example::intermediate()),
-            super::example::output_number_of_safe_reports_p2()
+            super::example::output_number_of_safe_reports_p_2()
         );
     }
 
@@ -111,11 +111,11 @@ mod example {
         ]
     }
 
-    pub fn output_number_of_safe_reports_p1() -> usize {
+    pub fn output_number_of_safe_reports_p_1() -> usize {
         2
     }
 
-    pub fn output_number_of_safe_reports_p2() -> usize {
+    pub fn output_number_of_safe_reports_p_2() -> usize {
         4
     }
 }
