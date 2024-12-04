@@ -46,7 +46,7 @@ fn main() -> anyhow::Result<()> {
         }
         Command::Day3 { puzzle_input_path } => {
             let puzzle_input = load_puzzle_input(puzzle_input_path)?;
-            println!("day2 {:?}", day_3::solution(&puzzle_input)?)
+            println!("day3 {:?}", day_3::solution(&puzzle_input)?)
         }
     }
 
