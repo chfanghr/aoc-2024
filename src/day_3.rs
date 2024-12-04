@@ -94,23 +94,27 @@ mod solution {
     pub fn sum_of_results_of_the_multiplications(instructions: &[Instruction]) -> i64 {
         instructions
             .iter()
-            .scan(true, |mul_enabled: &mut bool, instruction| {
-                match instruction {
+            .scan(
+                true,
+                |mul_enabled: &mut bool, instruction| match instruction {
                     Instruction::Mul(l, r) => {
                         if *mul_enabled {
-                            return Some(l * r);
+                            Some(l * r)
+                        } else {
+                            Some(0)
                         }
                     }
                     Instruction::Do => {
                         *mul_enabled = true;
+                        Some(0)
                     }
                     Instruction::Dont => {
                         *mul_enabled = false;
+                        Some(0)
                     }
-                    _ => (),
-                };
-                return Some(0);
-            })
+                    _ => Some(0),
+                },
+            )
             .sum()
     }
 
