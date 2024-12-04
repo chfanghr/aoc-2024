@@ -6,6 +6,9 @@
         crateName = "aoc-2024";
         devShellHook = config.settings.defaultShellHook;
         rustChannel = "nightly";
+        extraSourceFilters = [
+          (path: _type: builtins.match ".*input$" path != null)
+        ];
       };
     in
     {
