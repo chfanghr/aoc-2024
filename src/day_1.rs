@@ -53,8 +53,7 @@ mod solution {
         left_list
             .iter()
             .sorted()
-            .rev()
-            .zip(right_list.iter().sorted().rev())
+            .zip(right_list.iter().sorted())
             .map(|(l, r)| (l - r).abs())
             .sum()
     }
