@@ -1,0 +1,8 @@
+target
+result
+result-*
+.pre-commit-config.yaml
+.direnv
+.extras
+.vscode
+.zed
