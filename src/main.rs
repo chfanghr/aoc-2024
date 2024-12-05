@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use aoc_2024::{day_1, day_2, day_3};
+use aoc_2024::{day_1, day_2, day_3, day_4};
 use clap::Parser;
 
 #[derive(Debug, clap::Parser)]
@@ -24,6 +24,10 @@ enum Command {
     },
     Day3 {
         #[arg(short = 'i', long, default_value = "./testdata/day3")]
+        puzzle_input_path: PathBuf,
+    },
+    Day4 {
+        #[arg(short = 'i', long, default_value = "./testdata/day4")]
         puzzle_input_path: PathBuf,
     },
 }
@@ -47,6 +51,10 @@ fn main() -> anyhow::Result<()> {
         Command::Day3 { puzzle_input_path } => {
             let puzzle_input = load_puzzle_input(puzzle_input_path)?;
             println!("day3 {:?}", day_3::solution(&puzzle_input)?)
+        }
+        Command::Day4 { puzzle_input_path } => {
+            let puzzle_input = load_puzzle_input(puzzle_input_path)?;
+            println!("day4 {:?}", day_4::solution(&puzzle_input)?)
         }
     }
 
