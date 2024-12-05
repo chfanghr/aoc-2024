@@ -2,7 +2,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    flake-lang.url = "github:mlabs-haskell/flake-lang.nix";
+    flake-lang.url = "github:chfanghr/flake-lang.nix?ref=connor/templates";
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
   };
 
@@ -10,6 +10,8 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
         "x86_64-linux"
+        "aarch64-darwin"
+        "aarch64-linux"
       ];
 
       imports = [
