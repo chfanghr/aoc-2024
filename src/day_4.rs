@@ -60,7 +60,7 @@ mod solution {
 
     fn make_positions<const C: usize>(
         current_position: (usize, usize),
-        offset: &[(i32 /* row */, i32 /* col */); C],
+        offset: [(i32 /* row */, i32 /* col */); C],
     ) -> [(i32 /* row */, i32 /* col */); C] {
         let (current_row_index, current_col_index) = current_position;
         offset.map(|(row_offset, col_offset)| {
@@ -75,12 +75,11 @@ mod solution {
     where
         F: FnMut((usize, usize)),
     {
-        for row_index in 0..grid.len() {
-            let row = grid.get(row_index).unwrap();
-            for col_index in 0..row.len() {
-                f((row_index, col_index))
-            }
-        }
+        grid.iter().enumerate().for_each(|(row_index, row)| {
+            row.iter()
+                .enumerate()
+                .for_each(|(col_index, _)| f((row_index, col_index)))
+        });
     }
 
     pub mod part_1 {
@@ -114,7 +113,7 @@ mod solution {
 
             super::for_each_position(grid, |position| {
                 for offset in offsets {
-                    let positions = make_positions(position, &offset);
+                    let positions = make_positions(position, offset);
                     if check_xmas_sequence(&grid, positions) {
                         count += 1
                     }
@@ -162,7 +161,7 @@ mod solution {
 
             super::for_each_position(grid, |position| {
                 for combination in combinations {
-                    let positions = make_positions(position, &offset);
+                    let positions = make_positions(position, offset);
                     if check_combination(grid, positions, combination) {
                         count += 1;
                         break;
