@@ -4,6 +4,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-lang.url = "github:chfanghr/flake-lang.nix?ref=connor/templates";
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
+    hci-effects.url = "github:hercules-ci/hercules-ci-effects";
   };
 
   outputs = inputs@{ flake-parts, ... }:
@@ -18,6 +19,7 @@
         ./build.nix
         ./pre-commit.nix
         ./settings.nix
+        ./hercules-ci.nix
       ];
     };
 }
