@@ -13,7 +13,6 @@ pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
         .map_err(|err| anyhow!("failed to parse input: {}", err))?
         .1;
 
-    // print!(pages_in_rules.)
     Ok(Answer {
         part_1: solution::sum_of_middle_page_numbers_of_valid_updates(&input),
         part_2: solution::sum_of_middle_page_numbers_of_fixed_invalid_updates(&input),
