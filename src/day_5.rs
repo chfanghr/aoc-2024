@@ -77,7 +77,7 @@ mod parser {
 
 mod solution {
     use std::{
-        collections::{BTreeMap, BTreeSet, HashMap, HashSet},
+        collections::{BTreeMap, BTreeSet},
         ops::Not,
     };
 
@@ -132,7 +132,7 @@ mod solution {
 
     #[derive(Debug, Default)]
     struct Graph {
-        edges: HashMap<i64, HashSet<i64>>,
+        edges: BTreeMap<i64, BTreeSet<i64>>,
     }
 
     impl Graph {
@@ -157,7 +157,7 @@ mod solution {
 
         fn subgraph_with_vertices_subset<'a>(
             &'a self,
-            vertices_subset: &HashSet<i64>,
+            vertices_subset: &BTreeSet<i64>,
         ) -> SubgraphView<'a> {
             let vertices_subset = vertices_subset
                 .intersection(&self.vertices())
@@ -169,7 +169,7 @@ mod solution {
             }
         }
 
-        fn vertices(&self) -> HashSet<i64> {
+        fn vertices(&self) -> BTreeSet<i64> {
             self.edges.keys().copied().collect()
         }
     }
@@ -177,7 +177,7 @@ mod solution {
     #[derive(Debug)]
     struct SubgraphView<'a> {
         graph: &'a Graph,
-        vertices_subset: HashSet<i64>,
+        vertices_subset: BTreeSet<i64>,
     }
 
     impl<'a> SubgraphView<'a> {
@@ -192,7 +192,7 @@ mod solution {
 
         fn topologically_sort(&self) -> Option<Vec<i64>> {
             let mut result = Vec::<i64>::with_capacity(self.vertices_subset.len());
-            let mut marked_vertices = HashSet::<i64>::with_capacity(self.vertices_subset.len());
+            let mut marked_vertices = BTreeSet::<i64>::new();
 
             loop {
                 if let Some(unmarked_vertex) = self
@@ -204,7 +204,7 @@ mod solution {
                     self.visit(
                         &mut result,
                         &mut marked_vertices,
-                        &mut HashSet::new(),
+                        &mut BTreeSet::new(),
                         unmarked_vertex,
                     )?;
                 } else {
@@ -219,8 +219,8 @@ mod solution {
         fn visit(
             &self,
             result: &mut Vec<i64>,
-            marked_vertices: &mut HashSet<i64>,
-            tmp_marks_vertices: &mut HashSet<i64>,
+            marked_vertices: &mut BTreeSet<i64>,
+            tmp_marks_vertices: &mut BTreeSet<i64>,
             vertex: i64,
         ) -> Option<()> {
             if marked_vertices.contains(&vertex) {
@@ -302,7 +302,7 @@ mod solution {
 
         let graph = Graph::with_edges([(0, 1), (2, 1)].as_slice());
         assert_eq!(
-            Some(vec![0, 2, 1]),
+            Some(vec![2, 0, 1]),
             graph
                 .subgraph_with_vertices_subset(&graph.vertices())
                 .topologically_sort()
