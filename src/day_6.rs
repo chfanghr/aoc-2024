@@ -4,6 +4,7 @@ use nom::Parser;
 #[derive(Debug)]
 pub struct Answer {
     pub part_1: usize,
+    pub part_2: usize,
 }
 
 pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
@@ -14,17 +15,19 @@ pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
 
     Ok(Answer {
         part_1: solution::move_guard_until_out_of_bound(&input),
+        part_2: solution::number_of_obstructions_that_causes_looping(&input),
     })
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Input {
     guard_initial_direction: Direction,
     guard_initial_position: Position,
     map: Vec<Vec<Cell>>,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 enum Direction {
     Up,
     Right,
@@ -146,6 +149,8 @@ mod parser {
 mod solution {
     use std::collections::HashSet;
 
+    use rayon::iter::{IntoParallelIterator, ParallelIterator};
+
     use super::{Cell, Direction, Input, Position};
 
     #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -206,7 +211,7 @@ mod solution {
         }
     }
 
-    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
     struct GuardState {
         direction: Direction,
         current_position: Position,
@@ -229,30 +234,87 @@ mod solution {
         }
     }
 
-    pub fn move_guard_until_out_of_bound(input: &Input) -> usize {
-        let mut visited = HashSet::<Position>::new();
+    fn move_guard_until_out_of_bound_state_sequence(input: &Input) -> Vec<GuardState> {
+        let mut guard_states = Vec::<GuardState>::new();
         let mut guard_state = GuardState {
             direction: input.guard_initial_direction,
             current_position: input.guard_initial_position,
         };
 
         loop {
-            visited.insert(guard_state.current_position);
+            guard_states.push(guard_state);
             match guard_state.advance(&input.map) {
                 Some(next_guard_state) => guard_state = next_guard_state,
                 None => break,
             }
         }
 
-        visited.len()
+        guard_states
+    }
+
+    pub fn move_guard_until_out_of_bound(input: &Input) -> usize {
+        move_guard_until_out_of_bound_state_sequence(input)
+            .into_iter()
+            .map(|guard_state| guard_state.current_position)
+            .collect::<HashSet<_>>()
+            .len()
+    }
+
+    pub fn move_guard_while_detecting_looping(input: &Input) -> bool {
+        let mut unique_guard_states = HashSet::<GuardState>::new();
+        let mut guard_state = GuardState {
+            direction: input.guard_initial_direction,
+            current_position: input.guard_initial_position,
+        };
+        loop {
+            if unique_guard_states.contains(&guard_state) {
+                return true;
+            }
+            unique_guard_states.insert(guard_state);
+            match guard_state.advance(&input.map) {
+                Some(next_guard_state) => guard_state = next_guard_state,
+                None => break,
+            }
+        }
+        return false;
+    }
+
+    fn potential_additional_obstruction_positions(
+        guard_states_without_addition_obstruction: Vec<GuardState>,
+    ) -> HashSet<Position> {
+        guard_states_without_addition_obstruction
+            .into_iter()
+            .skip(1)
+            .map(|state| state.current_position)
+            .collect()
+    }
+
+    pub fn number_of_obstructions_that_causes_looping(input: &Input) -> usize {
+        let original_state_sequence = move_guard_until_out_of_bound_state_sequence(input);
+        let potential_positions =
+            potential_additional_obstruction_positions(original_state_sequence);
+
+        potential_positions
+            .into_par_iter()
+            .filter(|position| {
+                let mut input = input.clone();
+                input.map[usize::try_from(position.row_index).unwrap()]
+                    [usize::try_from(position.col_index).unwrap()] = Cell::Obstruction;
+                move_guard_while_detecting_looping(&input)
+            })
+            .count()
     }
 
     #[test]
     fn example() {
         assert_eq!(
-            super::example::output(),
+            super::example::output_p_1(),
             move_guard_until_out_of_bound(&super::example::intermediate())
-        )
+        );
+        assert_eq!(
+            super::example::output_p_2(),
+            number_of_obstructions_that_causes_looping(&super::example::intermediate())
+        );
     }
 }
 
@@ -268,7 +330,11 @@ mod example {
         include!("./examples/day6/intermediate.in")
     }
 
-    pub fn output() -> usize {
+    pub fn output_p_1() -> usize {
         41
+    }
+
+    pub fn output_p_2() -> usize {
+        6
     }
 }
