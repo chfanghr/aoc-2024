@@ -271,9 +271,7 @@ mod solution {
                                 panic!("INVALID RULE SET")
                             }
                         };
-                        let middle = middle_page_number(&fixed_update);
-                        // assert!(is_valid_update(&disallowed_in_suffix_map, &fixed_update));
-                        middle
+                        middle_page_number(&fixed_update)
                     })
             })
             .sum()
@@ -342,14 +340,15 @@ mod solution {
     fn example_fix_update() {
         let input = super::example::intermediate();
         let graph = Graph::with_edges(&input.page_ordering_rules);
+        let disallowed_in_suffix_map = make_disallowed_in_suffix_map(&input.page_ordering_rules);
         let check_fixed_update = |idx: usize, expected_fixed_update: Vec<i64>| {
             let update = &input.updates[idx];
-            let fixed_update = fix_update(&graph, update);
+            let fixed_update = fix_update(&graph, update).unwrap();
             assert_eq!(
-                fixed_update,
-                Some(expected_fixed_update),
+                fixed_update, expected_fixed_update,
                 "idx = {idx}, update = {update:?}"
-            )
+            );
+            assert!(is_valid_update(&disallowed_in_suffix_map, &fixed_update));
         };
         check_fixed_update(3, vec![97, 75, 47, 61, 53]);
         check_fixed_update(4, vec![61, 29, 13]);
