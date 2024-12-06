@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  perSystem = { system, config, ... }:
+  perSystem = { system, config, pkgs, ... }:
     let
       rustFlake = inputs.flake-lang.lib.${system}.rustFlake {
         src = ./.;
@@ -9,6 +9,9 @@
         extraSourceFilters = [
           (path: _type: builtins.match ".*txt$" path != null)
           (path: _type: builtins.match ".*in$" path != null)
+        ];
+        devShellTools = [
+          pkgs.lldb
         ];
       };
     in
