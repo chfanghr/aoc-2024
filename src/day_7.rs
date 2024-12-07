@@ -48,29 +48,29 @@ mod parser {
 }
 
 mod solution {
+    use guard::guard;
     use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
     fn all_expr_results<const DO_CONCAT: bool>(nums: &[i64]) -> Vec<i64> {
-        let mut stack: Vec<(&[i64], Option<i64>)> = vec![(nums, None)];
+        guard! {
+            let Some((head, remaining)) = uncons(nums) else {
+                return vec![]
+            }
+        }
+
+        let mut stack: Vec<(&[i64], i64)> = vec![(remaining, *head)];
 
         let mut results = Vec::<i64>::new();
 
         while let Some((remaining, current)) = stack.pop() {
-            if let Some(x) = remaining.get(0) {
-                let remaining = &remaining[1..];
-                if let Some(current) = current {
-                    stack.push((remaining, Some(current + x)));
-                    stack.push((remaining, Some(current * x)));
-                    if DO_CONCAT {
-                        stack.push((remaining, Some(concat(current, *x))));
-                    }
-                } else {
-                    stack.push((remaining, Some(*x)));
+            if let Some((x, remaining)) = uncons(remaining) {
+                stack.push((remaining, current + x));
+                stack.push((remaining, current * x));
+                if DO_CONCAT {
+                    stack.push((remaining, concat(current, *x)));
                 }
             } else {
-                if let Some(current) = current {
-                    results.push(current);
-                }
+                results.push(current);
             }
         }
 
@@ -94,6 +94,13 @@ mod solution {
             .sum()
     }
 
+    #[inline]
+    fn uncons<'a, T>(xs: &'a [T]) -> Option<(&'a T, &'a [T])> {
+        let x = xs.get(0)?;
+        let xs = &xs[1..];
+        Some((x, xs))
+    }
+
     fn concat(l: i64, r: i64) -> i64 {
         let mut exp = 1;
 
@@ -101,7 +108,7 @@ mod solution {
             exp += 1
         }
 
-        return l * 10i64.pow(exp) + r;
+        l * 10i64.pow(exp) + r
     }
 
     #[test]
