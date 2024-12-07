@@ -95,7 +95,13 @@ mod solution {
     }
 
     fn concat(l: i64, r: i64) -> i64 {
-        format!("{l}{r}").parse().unwrap()
+        let mut exp = 1;
+
+        while r / 10i64.pow(exp) > 0 {
+            exp += 1
+        }
+
+        return l * 10i64.pow(exp) + r;
     }
 
     #[test]
@@ -109,6 +115,14 @@ mod solution {
             super::example::output_p_2(),
             sum_of_possible_calibration_results::<true>(&examples)
         );
+    }
+
+    proptest::proptest! {
+        #[test]
+        fn prop_concat(x: u16, y:u16) {
+            let using_format_parse: i64 = format!("{x}{y}").parse().unwrap();
+            proptest::prop_assert_eq!(using_format_parse, concat(x as i64, y as i64))
+        }
     }
 }
 
