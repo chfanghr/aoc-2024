@@ -48,39 +48,50 @@ mod parser {
 }
 
 mod solution {
+    use std::{
+        ops::{Coroutine, CoroutineState},
+        pin::Pin,
+    };
+
     use guard::guard;
     use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-    fn all_expr_results<const DO_CONCAT: bool>(nums: &[i64]) -> Vec<i64> {
-        guard! {
-            let Some((head, remaining)) = uncons(nums) else {
-                return vec![]
-            }
-        }
-
-        let mut stack: Vec<(&[i64], i64)> = vec![(remaining, *head)];
-
-        let mut results = Vec::<i64>::new();
-
-        while let Some((remaining, current)) = stack.pop() {
-            if let Some((x, remaining)) = uncons(remaining) {
-                stack.push((remaining, current + x));
-                stack.push((remaining, current * x));
-                if DO_CONCAT {
-                    stack.push((remaining, concat(current, *x)));
-                }
-            } else {
-                results.push(current);
-            }
-        }
-
-        results
-    }
-
     fn is_equation_possible<const DO_CONCAT: bool>(target: i64, nums: &[i64]) -> bool {
-        all_expr_results::<DO_CONCAT>(nums)
-            .into_iter()
-            .any(|result| result == target)
+        let mut coroutine = #[coroutine]
+        || {
+            guard! {
+                let Some((head, remaining)) = uncons(nums) else {
+                    return
+                }
+            }
+
+            let mut stack: Vec<(&[i64], i64)> = vec![(remaining, *head)];
+
+            while let Some((remaining, current)) = stack.pop() {
+                if let Some((x, remaining)) = uncons(remaining) {
+                    stack.push((remaining, current + x));
+                    stack.push((remaining, current * x));
+                    if DO_CONCAT {
+                        stack.push((remaining, concat(current, *x)));
+                    }
+                } else {
+                    yield current;
+                }
+            }
+        };
+
+        loop {
+            let coroutine = Pin::new(&mut coroutine);
+
+            match coroutine.resume(()) {
+                CoroutineState::Yielded(x) => {
+                    if x == target {
+                        return true;
+                    }
+                }
+                CoroutineState::Complete(_) => return false,
+            }
+        }
     }
 
     pub fn sum_of_possible_calibration_results<const DO_CONCAT: bool>(

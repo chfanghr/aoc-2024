@@ -1,4 +1,7 @@
 #![feature(trait_alias)]
+#![feature(stmt_expr_attributes)]
+#![feature(coroutines)]
+#![feature(coroutine_trait)]
 
 pub mod day_1;
 pub mod day_2;
