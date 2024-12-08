@@ -3,7 +3,7 @@ Input {
         12,
         12,
     ),
-    antenna_for_frequencies: [
+    antennas_for_frequencies: [
         ('0', Vec::<(usize, usize)>::from([
             (
                 1,
