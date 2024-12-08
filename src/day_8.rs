@@ -24,7 +24,7 @@ pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
 #[derive(Debug, PartialEq, Eq)]
 struct Input {
     grid_size: (usize, usize),
-    antenna_for_frequencies: BTreeMap<char, BTreeSet<(usize, usize)>>,
+    antennas_for_frequencies: BTreeMap<char, BTreeSet<(usize, usize)>>,
 }
 
 mod parser {
@@ -82,7 +82,7 @@ mod parser {
 
         Ok(Input {
             grid_size,
-            antenna_for_frequencies,
+            antennas_for_frequencies: antenna_for_frequencies,
         })
     }
 
@@ -123,7 +123,7 @@ mod solution {
 
     fn discover_antinodes_of_all_frequencies_p_1(input: &Input) -> BTreeSet<(usize, usize)> {
         input
-            .antenna_for_frequencies
+            .antennas_for_frequencies
             .iter()
             .map(|(_, antennas)| {
                 discover_antinodes_of_certain_frequency_p1(input.grid_size, antennas)
@@ -134,7 +134,7 @@ mod solution {
 
     fn discover_antinodes_of_all_frequencies_p_2(input: &Input) -> BTreeSet<(usize, usize)> {
         input
-            .antenna_for_frequencies
+            .antennas_for_frequencies
             .iter()
             .map(|(_, antennas)| {
                 discover_antinodes_of_certain_frequency_p_2(input.grid_size, antennas)
