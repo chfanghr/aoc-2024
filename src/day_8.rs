@@ -6,6 +6,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Debug)]
 pub struct Answer {
     pub part_1: usize,
+    pub part_2: usize,
 }
 
 pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
@@ -15,7 +16,8 @@ pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
         .1;
 
     Ok(Answer {
-        part_1: solution::count_of_antinodes(&input),
+        part_1: solution::count_of_antinodes_p_1(&input),
+        part_2: solution::count_of_antinodes_p_2(&input),
     })
 }
 
@@ -111,20 +113,37 @@ mod solution {
 
     use super::Input;
 
-    pub fn count_of_antinodes(input: &Input) -> usize {
-        discover_antinodes_of_all_frequencies(input).len()
+    pub fn count_of_antinodes_p_1(input: &Input) -> usize {
+        discover_antinodes_of_all_frequencies_p_1(input).len()
     }
 
-    fn discover_antinodes_of_all_frequencies(input: &Input) -> BTreeSet<(usize, usize)> {
+    pub fn count_of_antinodes_p_2(input: &Input) -> usize {
+        discover_antinodes_of_all_frequencies_p_2(input).len()
+    }
+
+    fn discover_antinodes_of_all_frequencies_p_1(input: &Input) -> BTreeSet<(usize, usize)> {
         input
             .antenna_for_frequencies
             .iter()
-            .map(|(_, antennas)| discover_antinodes_of_certain_frequency(input.grid_size, antennas))
+            .map(|(_, antennas)| {
+                discover_antinodes_of_certain_frequency_p1(input.grid_size, antennas)
+            })
             .flatten()
             .collect()
     }
 
-    fn discover_antinodes_of_certain_frequency(
+    fn discover_antinodes_of_all_frequencies_p_2(input: &Input) -> BTreeSet<(usize, usize)> {
+        input
+            .antenna_for_frequencies
+            .iter()
+            .map(|(_, antennas)| {
+                discover_antinodes_of_certain_frequency_p_2(input.grid_size, antennas)
+            })
+            .flatten()
+            .collect()
+    }
+
+    fn discover_antinodes_of_certain_frequency_p1(
         grid_size: (usize, usize),
         antennas: &BTreeSet<(usize, usize)>,
     ) -> BTreeSet<(usize, usize)> {
@@ -151,6 +170,57 @@ mod solution {
             .difference(antennas)
             .copied()
             .collect()
+    }
+
+    fn discover_antinodes_of_certain_frequency_p_2(
+        grid_size: (usize, usize),
+        antennas: &BTreeSet<(usize, usize)>,
+    ) -> BTreeSet<(usize, usize)> {
+        antennas
+            .iter()
+            .map(|pos_l| {
+                antennas
+                    .iter()
+                    .map(|pos_r| {
+                        if pos_l == pos_r {
+                            return vec![];
+                        }
+
+                        let offset = pos_offset(*pos_l, *pos_r);
+                        let mut all_possible_positions = vec![];
+                        let mut add_possible_positions =
+                            |make_pos: fn(
+                                (usize, usize),
+                                (usize, usize),
+                                (i64, i64),
+                            )
+                                -> Option<(usize, usize)>,
+                             pos: (usize, usize)| {
+                                let mut x = 1i64;
+                                while let Some(pos) =
+                                    make_pos(grid_size, pos, scale_offset(offset, x))
+                                {
+                                    all_possible_positions.push(pos);
+                                    x += 1
+                                }
+                            };
+
+                        add_possible_positions(pos_checked_add, *pos_l);
+                        add_possible_positions(pos_checked_add, *pos_r);
+                        add_possible_positions(pos_checked_sub, *pos_l);
+                        add_possible_positions(pos_checked_sub, *pos_r);
+
+                        all_possible_positions
+                    })
+                    .flatten()
+                    .collect_vec()
+            })
+            .flatten()
+            .collect::<BTreeSet<(usize, usize)>>()
+    }
+
+    fn scale_offset(offset: (i64, i64), x: i64) -> (i64, i64) {
+        (offset.0 * x, offset.1 * x)
     }
 
     fn pos_offset(pos_l: (usize, usize), pos_r: (usize, usize)) -> (i64, i64) {
@@ -183,9 +253,13 @@ mod solution {
     #[test]
     fn example() {
         assert_eq!(
-            super::example::output(),
-            count_of_antinodes(&super::example::intermediate())
-        )
+            super::example::output_p_1(),
+            count_of_antinodes_p_1(&super::example::intermediate())
+        );
+        assert_eq!(
+            super::example::output_p_2(),
+            count_of_antinodes_p_2(&super::example::intermediate())
+        );
     }
 }
 
@@ -201,7 +275,11 @@ mod example {
         include!("./examples/day8/intermediate.in")
     }
 
-    pub fn output() -> usize {
+    pub fn output_p_1() -> usize {
         14
+    }
+
+    pub fn output_p_2() -> usize {
+        34
     }
 }
