@@ -25,7 +25,6 @@ struct Grid<T>(Vec<Vec<T>>);
 
 mod parser {
     use itertools::Itertools;
-    use nom::multi::many1;
 
     use super::Grid;
 
@@ -56,11 +55,13 @@ mod parser {
 
     fn col<'a>() -> impl Parser<'a, Vec<u8>> {
         const RADIX: u32 = 10;
-        many1(nom::character::complete::satisfy(|ch| ch.is_digit(RADIX))).map(|v: Vec<char>| {
-            v.into_iter()
-                .map(|ch: char| ch.to_digit(RADIX).unwrap().try_into().unwrap())
-                .collect_vec()
-        })
+        nom::multi::many1(nom::character::complete::satisfy(|ch| ch.is_digit(RADIX))).map(
+            |v: Vec<char>| {
+                v.into_iter()
+                    .map(|ch: char| ch.to_digit(RADIX).unwrap().try_into().unwrap())
+                    .collect_vec()
+            },
+        )
     }
 
     #[test]
