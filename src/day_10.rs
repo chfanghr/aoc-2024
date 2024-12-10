@@ -4,6 +4,7 @@ use nom::Parser;
 #[derive(Debug)]
 pub struct Answer {
     pub part_1: u64,
+    pub part_2: u64,
 }
 
 pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
@@ -14,6 +15,7 @@ pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
 
     Ok(Answer {
         part_1: solution::total_score_of_topographic_map(&input),
+        part_2: solution::total_rating_of_topographic_map(&input),
     })
 }
 
@@ -148,7 +150,11 @@ mod solution {
             HeightMap(grid)
         }
 
-        fn calculate_score_of_trailhead(&self, trailhead_position: Position) -> u64 {
+        fn calculate_score_of_trailhead(
+            &self,
+            trailhead_position: Position,
+            unique_trail_ends: bool,
+        ) -> u64 {
             let offsets: [Offset; 4] = [
                 Offset(1, 0),  // Down
                 Offset(-1, 0), // Up
@@ -161,7 +167,7 @@ mod solution {
             let mut next_positions = vec![trailhead_position];
 
             while let Some(current_position) = next_positions.pop() {
-                if *visited.must_get_cell(current_position) {
+                if !unique_trail_ends && *visited.must_get_cell(current_position) {
                     continue;
                 }
 
@@ -203,23 +209,31 @@ mod solution {
                 .collect_vec()
         }
 
-        fn calculate_total_score(&self) -> u64 {
+        fn calculate_total_score(&self, unique_trail_ends: bool) -> u64 {
             self.discover_trailheads()
                 .into_iter()
-                .map(|trailhead| self.calculate_score_of_trailhead(trailhead))
+                .map(|trailhead| self.calculate_score_of_trailhead(trailhead, unique_trail_ends))
                 .sum()
         }
     }
 
     pub fn total_score_of_topographic_map(grid: &Grid<u8>) -> u64 {
-        HeightMap::new(grid).calculate_total_score()
+        HeightMap::new(grid).calculate_total_score(false)
+    }
+
+    pub fn total_rating_of_topographic_map(grid: &Grid<u8>) -> u64 {
+        HeightMap::new(grid).calculate_total_score(true)
     }
 
     #[test]
     fn example() {
         assert_eq!(
-            super::example::output(),
+            super::example::output_p_1(),
             total_score_of_topographic_map(&super::example::intermediate())
+        );
+        assert_eq!(
+            super::example::output_p_2(),
+            total_rating_of_topographic_map(&super::example::intermediate())
         );
     }
 }
@@ -243,7 +257,11 @@ mod example {
         )
     }
 
-    pub fn output() -> u64 {
+    pub fn output_p_1() -> u64 {
         36
+    }
+
+    pub fn output_p_2() -> u64 {
+        81
     }
 }
