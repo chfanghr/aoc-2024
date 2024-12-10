@@ -172,8 +172,8 @@ mod solution {
     }
 
     impl Position {
-        fn advance(&self, at_direction: Direction) -> Self {
-            match at_direction {
+        fn advance(&self, in_direction: Direction) -> Self {
+            match in_direction {
                 Direction::Up => Self {
                     row_index: self.row_index - 1,
                     col_index: self.col_index,
