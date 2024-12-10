@@ -158,8 +158,8 @@ mod solution {
             let offsets: [Offset; 4] = [
                 Offset(1, 0),  // Down
                 Offset(-1, 0), // Up
-                Offset(0, 1),  // Left
-                Offset(0, -1), // Right
+                Offset(0, 1),  // Right
+                Offset(0, -1), // Left
             ];
 
             let mut visited = Grid::new_fill_with(false, self.0.size());
