@@ -48,7 +48,7 @@ mod parser {
         let col_size = grid.first().ok_or("empty grid".to_string())?.len();
         let grid_size = (row_size, col_size);
 
-        let antenna_for_frequencies = grid
+        let antennas_for_frequencies = grid
             .into_iter()
             .enumerate()
             .map(
@@ -82,7 +82,7 @@ mod parser {
 
         Ok(Input {
             grid_size,
-            antennas_for_frequencies: antenna_for_frequencies,
+            antennas_for_frequencies,
         })
     }
 

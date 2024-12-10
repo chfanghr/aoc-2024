@@ -140,22 +140,27 @@ mod solution {
                 .get_mut(col_index)
                 .unwrap()
         }
+
+        fn positions<'a>(&'a self) -> impl 'a + Iterator<Item = Position> {
+            let GridSize(rows, cols) = self.size();
+            (0..rows)
+                .into_iter()
+                .map(move |row_index| {
+                    (0..cols)
+                        .into_iter()
+                        .map(move |col_index| Position(row_index, col_index))
+                })
+                .flatten()
+        }
     }
 
     #[derive(Debug, Clone)]
     #[repr(transparent)]
-    struct HeightMap<'a>(&'a Grid<u8>);
+    struct HeightMap(Grid<(u8, Vec<Position>)>);
 
-    impl<'a> HeightMap<'a> {
-        fn new(grid: &'a Grid<u8>) -> Self {
-            HeightMap(grid)
-        }
-
-        fn calculate_score_of_trailhead(
-            &self,
-            trailhead_position: Position,
-            unique_trail_ends: bool,
-        ) -> u64 {
+    impl HeightMap {
+        fn new(grid: &Grid<u8>) -> Self {
+            let grid_size = grid.size();
             let offsets: [Offset; 4] = [
                 Offset(1, 0),  // Down
                 Offset(-1, 0), // Up
@@ -163,6 +168,33 @@ mod solution {
                 Offset(0, -1), // Left
             ];
 
+            let height_and_neighbors = grid.positions().fold(
+                Grid::new_fill_with((0, vec![]), grid_size),
+                |mut neighbors, current_position| {
+                    let current_height = *grid.must_get_cell(current_position);
+                    *neighbors.must_get_mut_cell(current_position) = (
+                        current_height,
+                        offsets
+                            .into_iter()
+                            .filter_map(|offset| -> Option<Position> {
+                                current_position.checked_add_offset(offset, grid).filter(
+                                    |position| *grid.must_get_cell(*position) == current_height + 1,
+                                )
+                            })
+                            .collect_vec(),
+                    );
+                    neighbors
+                },
+            );
+
+            HeightMap(height_and_neighbors)
+        }
+
+        fn calculate_score_of_trailhead(
+            &self,
+            trailhead_position: Position,
+            unique_trail_ends: bool,
+        ) -> u64 {
             let mut visited = Grid::new_fill_with(false, self.0.size());
             let mut score = 0u64;
             let mut next_positions = vec![trailhead_position];
@@ -172,18 +204,12 @@ mod solution {
                     continue;
                 }
 
-                let current_height = *self.0.must_get_cell(current_position);
+                let (current_height, current_neighbors) = self.0.must_get_cell(current_position);
 
-                if current_height == 9 {
-                    score += 1;
+                if *current_height == 9 {
+                    score += 1
                 } else {
-                    next_positions.extend(offsets.into_iter().filter_map(
-                        |offset| -> Option<Position> {
-                            current_position.checked_add_offset(offset, &self.0).filter(
-                                |position| *self.0.must_get_cell(*position) == current_height + 1,
-                            )
-                        },
-                    ));
+                    next_positions.extend(current_neighbors.into_iter())
                 }
 
                 *visited.must_get_mut_cell(current_position) = true;
@@ -192,27 +218,14 @@ mod solution {
             score
         }
 
-        fn discover_trailheads(&self) -> Vec<Position> {
-            let GridSize(rows, cols) = self.0.size();
-
-            (0..rows)
-                .into_iter()
-                .map(|row_index| {
-                    (0..cols)
-                        .into_iter()
-                        .filter_map(|col_index| {
-                            let pos = Position(row_index, col_index);
-                            (*self.0.must_get_cell(pos) == 0).then_some(pos)
-                        })
-                        .collect_vec()
-                })
-                .flatten()
-                .collect_vec()
+        fn discover_trailheads<'a>(&'a self) -> impl 'a + Iterator<Item = Position> {
+            self.0
+                .positions()
+                .filter(|position| self.0.must_get_cell(*position).0 == 0)
         }
 
         fn calculate_total_score(&self, unique_trail_ends: bool) -> u64 {
             self.discover_trailheads()
-                .into_iter()
                 .map(|trailhead| self.calculate_score_of_trailhead(trailhead, unique_trail_ends))
                 .sum()
         }
