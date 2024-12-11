@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use aoc_2024::{day_1, day_10, day_2, day_3, day_4, day_5, day_6, day_7, day_8, day_9};
+use aoc_2024::{day_1, day_10, day_11, day_2, day_3, day_4, day_5, day_6, day_7, day_8, day_9};
 use clap::Parser;
 
 #[derive(Debug, clap::Parser)]
@@ -27,6 +27,7 @@ enum Day {
     Day8,
     Day9,
     Day10,
+    Day11,
 }
 
 fn solve_puzzle_and_print<
@@ -66,6 +67,7 @@ fn main() -> anyhow::Result<()> {
             Day::Day8 => box_solver(day_8::solution),
             Day::Day9 => box_solver(day_9::solution),
             Day::Day10 => box_solver(day_10::solution),
+            Day::Day11 => box_solver(day_11::solution),
         },
     )
 }
