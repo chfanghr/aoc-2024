@@ -81,12 +81,7 @@ mod solution {
     impl HeightMap {
         fn new(grid: &Grid<u8>) -> Self {
             let grid_size = grid.size();
-            let offsets: [Offset; 4] = [
-                Offset(1, 0),  // Down
-                Offset(-1, 0), // Up
-                Offset(0, 1),  // Right
-                Offset(0, -1), // Left
-            ];
+            let offsets: [Offset; 4] = [Offset::DOWN, Offset::UP, Offset::RIGHT, Offset::LEFT];
 
             let height_and_neighbors = grid.positions().fold(
                 Grid::fill_with((0, vec![]), grid_size),
@@ -98,7 +93,7 @@ mod solution {
                             .into_iter()
                             .filter_map(|offset| -> Option<Position> {
                                 current_position
-                                    .checked_add_offset(offset, grid_size)
+                                    .checked_add_offset(offset, grid_size.into())
                                     .filter(|position| {
                                         *grid.must_get_cell(*position) == current_height + 1
                                     })
