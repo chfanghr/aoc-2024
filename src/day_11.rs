@@ -57,7 +57,11 @@ mod solution {
         }
     }
 
-    fn blink_num(num: u64, memo: &mut HashMap<usize, HashMap<u64, usize>>, depth: usize) -> usize {
+    fn blink_num_n_times(
+        num: u64,
+        memo: &mut HashMap<usize, HashMap<u64, usize>>,
+        depth: usize,
+    ) -> usize {
         if depth == 0 {
             return 1;
         }
@@ -69,12 +73,10 @@ mod solution {
             return *count;
         }
 
-        let count = {
-            next_nums(num)
-                .into_iter()
-                .map(|num| blink_num(num, memo, depth - 1))
-                .sum()
-        };
+        let count = next_nums(num)
+            .into_iter()
+            .map(|num| blink_num_n_times(num, memo, depth - 1))
+            .sum();
 
         memo.entry(depth)
             .or_default()
@@ -86,7 +88,9 @@ mod solution {
 
     pub fn blink_n_times(nums: &[u64], n: usize) -> usize {
         let mut memo = HashMap::new();
-        nums.iter().map(|num| blink_num(*num, &mut memo, n)).sum()
+        nums.iter()
+            .map(|num| blink_num_n_times(*num, &mut memo, n))
+            .sum()
     }
 
     #[test]

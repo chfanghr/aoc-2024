@@ -19,14 +19,10 @@ pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
     })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[repr(transparent)]
-struct Grid<T>(Vec<Vec<T>>);
-
 mod parser {
     use itertools::Itertools;
 
-    use super::Grid;
+    use crate::grid::Grid;
 
     pub type ParserInput<'a> = &'a str;
     pub type Error<'a> = nom::error::Error<ParserInput<'a>>;
@@ -74,85 +70,9 @@ mod parser {
 }
 
 mod solution {
-    use std::iter::repeat;
-
     use itertools::Itertools;
 
-    use super::Grid;
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-    struct Position(usize, usize);
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-    struct Offset(isize, isize);
-
-    impl Position {
-        #[inline]
-        fn checked_add_offset<T>(&self, offset: Offset, grid: &Grid<T>) -> Option<Self> {
-            let Position(row_index, col_index) = self;
-            let Offset(row_offset, col_offset) = offset;
-            let GridSize(rows, cols) = grid.size();
-            let row_index = row_index
-                .checked_add_signed(row_offset)
-                .filter(|row_index| *row_index < rows)?;
-            let col_index = col_index
-                .checked_add_signed(col_offset)
-                .filter(|col_index| *col_index < cols)?;
-            Some(Position(row_index, col_index))
-        }
-    }
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-    struct GridSize(pub(crate) usize, pub(crate) usize);
-
-    impl<T> Grid<T> {
-        fn new_fill_with(elm: T, grid_size: GridSize) -> Self
-        where
-            T: Clone,
-        {
-            let GridSize(cols, rows) = grid_size;
-            Grid(
-                repeat(repeat(elm).take(cols).collect_vec())
-                    .take(rows)
-                    .collect_vec(),
-            )
-        }
-
-        #[inline]
-        fn size(&self) -> GridSize {
-            let rows = self.0.len();
-            let cols = self.0.get(0).map(|row| row.len()).unwrap_or(0);
-            GridSize(rows, cols)
-        }
-
-        #[inline]
-        fn must_get_cell<'a>(&'a self, position: Position) -> &'a T {
-            let Position(row_index, col_index) = position;
-            self.0.get(row_index).unwrap().get(col_index).unwrap()
-        }
-
-        #[inline]
-        fn must_get_mut_cell<'a>(&'a mut self, position: Position) -> &'a mut T {
-            let Position(row_index, col_index) = position;
-            self.0
-                .get_mut(row_index)
-                .unwrap()
-                .get_mut(col_index)
-                .unwrap()
-        }
-
-        fn positions<'a>(&'a self) -> impl 'a + Iterator<Item = Position> {
-            let GridSize(rows, cols) = self.size();
-            (0..rows)
-                .into_iter()
-                .map(move |row_index| {
-                    (0..cols)
-                        .into_iter()
-                        .map(move |col_index| Position(row_index, col_index))
-                })
-                .flatten()
-        }
-    }
+    use crate::grid::{Grid, Offset, Position};
 
     #[derive(Debug, Clone)]
     #[repr(transparent)]
@@ -169,7 +89,7 @@ mod solution {
             ];
 
             let height_and_neighbors = grid.positions().fold(
-                Grid::new_fill_with((0, vec![]), grid_size),
+                Grid::fill_with((0, vec![]), grid_size),
                 |mut neighbors, current_position| {
                     let current_height = *grid.must_get_cell(current_position);
                     *neighbors.must_get_mut_cell(current_position) = (
@@ -177,9 +97,11 @@ mod solution {
                         offsets
                             .into_iter()
                             .filter_map(|offset| -> Option<Position> {
-                                current_position.checked_add_offset(offset, grid).filter(
-                                    |position| *grid.must_get_cell(*position) == current_height + 1,
-                                )
+                                current_position
+                                    .checked_add_offset(offset, grid_size)
+                                    .filter(|position| {
+                                        *grid.must_get_cell(*position) == current_height + 1
+                                    })
                             })
                             .collect_vec(),
                     );
@@ -195,7 +117,7 @@ mod solution {
             trailhead_position: Position,
             unique_trail_ends: bool,
         ) -> u64 {
-            let mut visited = Grid::new_fill_with(false, self.0.size());
+            let mut visited = Grid::fill_with(false, self.0.size());
             let mut score = 0u64;
             let mut next_positions = vec![trailhead_position];
 
@@ -256,7 +178,7 @@ mod solution {
 mod example {
     use itertools::Itertools;
 
-    use super::Grid;
+    use crate::grid::Grid;
 
     pub fn input() -> &'static str {
         include_str!("./examples/day10/example.txt")
