@@ -3,7 +3,8 @@ use nom::Parser;
 
 #[derive(Debug)]
 pub struct Answer {
-    pub part_1: u64,
+    pub part_1: u128,
+    pub part_2: u128,
 }
 
 pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
@@ -12,25 +13,27 @@ pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
         .map_err(|err| anyhow!("failed to parse input: {}", err))?
         .1;
 
+    // let input
     Ok(Answer {
-        part_1: solution::total_tokens_needed(&input),
+        part_1: solution::total_tokens_needed_part_1(&input),
+        part_2: solution::total_tokens_needed_part_2(&input),
     })
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 struct ClawMachine {
     button_a: Button,
     button_b: Button,
     prize: Prize,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 struct Button {
     x_offset: i128,
     y_offset: i128,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 struct Prize {
     x: i128,
     y: i128,
@@ -114,6 +117,7 @@ mod parser {
 }
 
 mod solution {
+    use itertools::Itertools;
     use rational::Rational;
 
     use super::ClawMachine;
@@ -123,11 +127,13 @@ mod solution {
         (r.denominator() == 1).then_some(r.numerator())
     }
 
-    fn check_and_convert(t: i128) -> Option<u8> {
-        (0..=100).contains(&t).then(|| u8::try_from(t).unwrap())
+    fn check_and_convert(t: i128, threshold: Option<i128>) -> Option<u128> {
+        (0..=threshold.unwrap_or(i128::MAX))
+            .contains(&t)
+            .then(|| t as u128)
     }
 
-    fn press_buttons(m: &ClawMachine) -> Option<(u8, u8)> {
+    fn press_buttons(m: &ClawMachine, threshold: Option<i128>) -> Option<(u128, u128)> {
         let ClawMachine {
             button_a,
             button_b,
@@ -143,23 +149,49 @@ mod solution {
         // a = (T_X - X_B * b) / X_A
         let a = full_div(prize.x - button_b.x_offset * b, button_a.x_offset)?;
 
-        check_and_convert(a).zip(check_and_convert(b))
+        check_and_convert(a, threshold).zip(check_and_convert(b, threshold))
     }
 
-    fn tokens_needed(m: &ClawMachine) -> Option<u64> {
-        let (a, b) = press_buttons(m)?;
-        Some(u64::from(a) * 3 + u64::from(b) * 1)
+    fn tokens_needed(m: &ClawMachine, threshold: Option<i128>) -> Option<u128> {
+        let (a, b) = press_buttons(m, threshold)?;
+        Some(a * 3 + b * 1)
     }
 
-    pub fn total_tokens_needed(ms: &[ClawMachine]) -> u64 {
-        ms.iter().filter_map(tokens_needed).sum()
+    fn total_tokens_needed(ms: &[ClawMachine], threshold: Option<i128>) -> u128 {
+        ms.iter().filter_map(|m| tokens_needed(m, threshold)).sum()
+    }
+
+    pub fn total_tokens_needed_part_1(ms: &[ClawMachine]) -> u128 {
+        total_tokens_needed(ms, Some(100))
+    }
+
+    pub fn total_tokens_needed_part_2(ms: &[ClawMachine]) -> u128 {
+        let ms = make_part_2_input(ms);
+        total_tokens_needed(&ms, None)
+    }
+
+    pub fn make_part_2_input(input: &[ClawMachine]) -> Vec<ClawMachine> {
+        input
+            .iter()
+            .cloned()
+            .map(|mut m| {
+                m.prize.x += 10000000000000;
+                m.prize.y += 10000000000000;
+                m
+            })
+            .collect_vec()
     }
 
     #[test]
     fn example() {
         assert_eq!(
-            super::example::output(),
-            total_tokens_needed(&super::example::intermediate())
+            super::example::output_p_1(),
+            total_tokens_needed_part_1(&super::example::intermediate())
+        );
+
+        assert_eq!(
+            super::example::output_p_2(),
+            total_tokens_needed_part_2(&super::example::intermediate())
         );
     }
 }
@@ -176,7 +208,11 @@ mod example {
         include!("./examples/day13/intermediate.in")
     }
 
-    pub fn output() -> u64 {
+    pub fn output_p_1() -> u128 {
         480
+    }
+
+    pub fn output_p_2() -> u128 {
+        875318608908
     }
 }
