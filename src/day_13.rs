@@ -13,7 +13,6 @@ pub fn solution<'a>(input: &'a str) -> anyhow::Result<Answer> {
         .map_err(|err| anyhow!("failed to parse input: {}", err))?
         .1;
 
-    // let input
     Ok(Answer {
         part_1: solution::total_tokens_needed_part_1(&input),
         part_2: solution::total_tokens_needed_part_2(&input),
@@ -100,7 +99,7 @@ mod parser {
         let label = label.to_owned();
         move |input: &str| {
             nom::sequence::preceded(
-                nom::bytes::complete::tag(AsRef::<str>::as_ref(&format!("{label}"))),
+                nom::bytes::complete::tag(AsRef::<str>::as_ref(&label)),
                 nom::character::complete::i128,
             )
             .parse(input)
