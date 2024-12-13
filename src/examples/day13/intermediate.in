@@ -1,0 +1,58 @@
+vec![
+    ClawMachine {
+        button_a: Button {
+            x_offset: 94,
+            y_offset: 34,
+        },
+        button_b: Button {
+            x_offset: 22,
+            y_offset: 67,
+        },
+        prize: Prize {
+            x: 8400,
+            y: 5400,
+        },
+    },
+    ClawMachine {
+        button_a: Button {
+            x_offset: 26,
+            y_offset: 66,
+        },
+        button_b: Button {
+            x_offset: 67,
+            y_offset: 21,
+        },
+        prize: Prize {
+            x: 12748,
+            y: 12176,
+        },
+    },
+    ClawMachine {
+        button_a: Button {
+            x_offset: 17,
+            y_offset: 86,
+        },
+        button_b: Button {
+            x_offset: 84,
+            y_offset: 37,
+        },
+        prize: Prize {
+            x: 7870,
+            y: 6450,
+        },
+    },
+    ClawMachine {
+        button_a: Button {
+            x_offset: 69,
+            y_offset: 23,
+        },
+        button_b: Button {
+            x_offset: 27,
+            y_offset: 71,
+        },
+        prize: Prize {
+            x: 18641,
+            y: 10279,
+        },
+    },
+]
