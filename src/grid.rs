@@ -100,7 +100,7 @@ impl Position {
 
 impl Offset {
     #[inline]
-    pub fn add_unchecked(&self, r: Offset) -> Offset {
+    pub fn unchecked_add(&self, r: Offset) -> Offset {
         Offset::new(
             self.row_offset + r.row_offset,
             self.col_offset + r.col_offset,

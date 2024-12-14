@@ -158,7 +158,7 @@ mod solution {
     ) -> bool {
         is_not_in_current_region(edge_position, offset_1, grid)
             && (is_not_in_current_region(edge_position, offset_2, grid)
-                || !is_not_in_current_region(edge_position, offset_1.add_unchecked(offset_2), grid))
+                || !is_not_in_current_region(edge_position, offset_1.unchecked_add(offset_2), grid))
     }
 
     fn number_of_corners(edge_position: Position, grid: &Grid<CurrentRegionCell>) -> usize {

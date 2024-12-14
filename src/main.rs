@@ -4,7 +4,8 @@ use std::{
 };
 
 use aoc_2024::{
-    day_1, day_10, day_11, day_12, day_13, day_2, day_3, day_4, day_5, day_6, day_7, day_8, day_9,
+    day_1, day_10, day_11, day_12, day_13, day_14, day_2, day_3, day_4, day_5, day_6, day_7, day_8,
+    day_9,
 };
 use clap::Parser;
 
@@ -32,6 +33,7 @@ enum Day {
     Day11,
     Day12,
     Day13,
+    Day14,
 }
 
 fn solve_puzzle_and_print<
@@ -74,6 +76,7 @@ fn main() -> anyhow::Result<()> {
             Day::Day11 => box_solver(day_11::solution),
             Day::Day12 => box_solver(day_12::solution),
             Day::Day13 => box_solver(day_13::solution),
+            Day::Day14 => box_solver(day_14::solution),
         },
     )
 }

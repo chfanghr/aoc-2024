@@ -1,0 +1,122 @@
+vec![
+    Robot {
+        current_position: Position {
+            x: 0,
+            y: 4,
+        },
+        velocity: Offset {
+            x: 3,
+            y: -3,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 6,
+            y: 3,
+        },
+        velocity: Offset {
+            x: -1,
+            y: -3,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 10,
+            y: 3,
+        },
+        velocity: Offset {
+            x: -1,
+            y: 2,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 2,
+            y: 0,
+        },
+        velocity: Offset {
+            x: 2,
+            y: -1,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 0,
+            y: 0,
+        },
+        velocity: Offset {
+            x: 1,
+            y: 3,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 3,
+            y: 0,
+        },
+        velocity: Offset {
+            x: -2,
+            y: -2,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 7,
+            y: 6,
+        },
+        velocity: Offset {
+            x: -1,
+            y: -3,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 3,
+            y: 0,
+        },
+        velocity: Offset {
+            x: -1,
+            y: -2,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 9,
+            y: 3,
+        },
+        velocity: Offset {
+            x: 2,
+            y: 3,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 7,
+            y: 3,
+        },
+        velocity: Offset {
+            x: -1,
+            y: 2,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 2,
+            y: 4,
+        },
+        velocity: Offset {
+            x: 2,
+            y: -3,
+        },
+    },
+    Robot {
+        current_position: Position {
+            x: 9,
+            y: 5,
+        },
+        velocity: Offset {
+            x: -3,
+            y: -3,
+        },
+    },
+]
