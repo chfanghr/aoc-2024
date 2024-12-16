@@ -63,6 +63,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "closure",
  "guard",
  "itertools",
  "lockfree",
@@ -151,6 +152,12 @@ name = "clap_lex"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "afb84c814227b90d6895e01398aee0d8033c00e7466aca416fb6a8e0eb19d8a7"
+
+[[package]]
+name = "closure"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d6173fd61b610d15a7566dd7b7620775627441c4ab9dac8906e17cb93a24b782"
 
 [[package]]
 name = "colorchoice"

@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = { version = "1.0.94", features = ["std"] }
 clap = { version = "4.5.22", features = ["derive"] }
+closure = "0.3.0"
 guard = "0.5.2"
 itertools = "0.13.0"
 lockfree = "0.5.1"

@@ -9,7 +9,7 @@ use itertools::Itertools;
 #[repr(transparent)]
 pub struct Grid<T>(pub Vec<Vec<T>>);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Position {
     pub row_index: usize,
     pub col_index: usize,
@@ -36,6 +36,10 @@ impl Offset {
             row_offset,
             col_offset,
         }
+    }
+
+    pub fn dot(&self, r: Offset) -> isize {
+        self.row_offset * r.row_offset + self.col_offset * r.col_offset
     }
 
     pub const DOWN: Offset = Offset {
